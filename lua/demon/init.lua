@@ -18,13 +18,14 @@ local M = {
 
 function M.setup()
     M.namespace = vim.api.nvim_create_namespace "Demon"
-    vim.api.nvim_set_hl(M.namespace, "NormalFloat", { bg = "#000000" })
+
+    vim.api.nvim_set_hl(M.namespace, "Normal", { bg = "#000000", fg = "#FFFFFF" })
+    vim.api.nvim_set_hl(M.namespace, "NormalFloat", { bg = "#000000", fg = "#FFFFFF" })
+    vim.api.nvim_set_hl(M.namespace, "FloatBorder", { bg = "#000000", fg = "#FFFFFF" })
     vim.api.nvim_set_hl(M.namespace, "Success", { fg = "#00FF00", ctermfg = "Green" })
     vim.api.nvim_set_hl(M.namespace, "Error", { fg = "#FF0000", ctermfg = "Red" })
 
-    vim.api.nvim_create_autocmd("VimEnter", {
-        callback = M._start,
-    })
+    M._start()
 end
 
 function M._start()
@@ -78,6 +79,7 @@ function M._createWindow(buffer, y, width, height, enter)
         height = height,
         focusable = enter,
         border = "rounded",
+        style = "minimal",
     })
     vim.api.nvim_win_set_hl_ns(window, M.namespace)
     return window
