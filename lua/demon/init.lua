@@ -1,6 +1,8 @@
-local examQuestions = require "demon.exam-questions"
+local EXAM_QUESTIONS = require "demon.exam-questions"
 
 local M = {
+    -- 所有题目的临时容器。
+    topics = nil,
     -- 显示帮助信息的缓冲区
     helpBuffer = nil,
     -- 显示题目
@@ -11,8 +13,7 @@ local M = {
     resultBuffer = nil,
     -- 当前题目
     topic = nil,
-    -- 已经出现过的题目
-    hasAppeared = {},
+    -- 样式空间
     namespace = nil,
 }
 
@@ -25,6 +26,7 @@ function M.setup()
     vim.api.nvim_set_hl(M.namespace, "Success", { fg = "#00FF00", ctermfg = "Green" })
     vim.api.nvim_set_hl(M.namespace, "Error", { fg = "#FF0000", ctermfg = "Red" })
 
+    M.topics = vim.fn.copy(EXAM_QUESTIONS)
     M._start()
 end
 
@@ -87,23 +89,17 @@ end
 
 -- 下一题
 function M._next(buffer)
-    if #M.hasAppeared == #examQuestions then
+    if #M.topics == 0 then
         -- 所有题目出题完毕
         vim.fn.setbufline(M.topicBuffer, 1, "所有题目测试完毕，按 Ctrl + n 重新开始测试")
-        M.hasAppeared = {}
+        M.topics = vim.fn.copy(EXAM_QUESTIONS)
         return
     end
 
     -- 随机获取题目
-    while true do
-        math.randomseed(os.time())
-        local index = math.random(1, #examQuestions)
-        if not vim.tbl_contains(M.hasAppeared, index) then
-            table.insert(M.hasAppeared, index)
-            M.topic = examQuestions[index]
-            break
-        end
-    end
+    math.randomseed(os.time())
+    local index = math.random(1, #M.topics)
+    M.topic = table.remove(M.topics, index)
 
     vim.fn.setbufline(M.topicBuffer, 1, M.topic.title)
     vim.fn.setbufline(M.answerAreaBuffer, 2, "")
